@@ -20,5 +20,5 @@ def checkData(data):
         return 2
     else:
         print("Message Number Not Defined")
-        return -1
+        return 0
 

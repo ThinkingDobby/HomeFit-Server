@@ -1,6 +1,9 @@
 import socket
 import threading
 
+from file.ImageSave import ImageSaver
+import os
+
 from protocols.CheckData import checkData
 
 
@@ -31,13 +34,13 @@ class HomeFitServer:
         while True:
             # 데이터 수신
             data = clientSocket.recv(self.bufSize)
+            print(data)
 
             if not data:
                 print("Client Disconnected")
                 break
 
             print("Data Length (" + str(sockID) + "): " + str(len(data)))
-            print(data)
 
             # 데이터 유효성 확인, 메시지 번호 확인
             check = checkData(data)
@@ -52,8 +55,35 @@ class HomeFitServer:
             # 파일 수신
             elif check == 2:
                 if not userName:
-                    print("Username Undefined")
+                    print("Username Not Defined")
                     continue
+
+                saveName = "sample.png"
+
+                fileSize = int.from_bytes(data[6:10], byteorder='big', signed=True)
+                print("File Size: " + str(fileSize))
+
+                cwd = os.getcwd()
+                dirPath = cwd + '/images/' + userName
+
+                imageSaver = ImageSaver(saveName, dirPath, fileSize)
+                imageSaver.initImageSaver()
+
+                imageSaver.saveImage(data[11:])
+
+                while True:
+                    data = clientSocket.recv(self.bufSize)
+                    print(data)
+                    if not data:
+                        break
+
+                    fullFlag = imageSaver.saveImage(data)
+
+                    if fullFlag:
+                        break
+
+                imageSaver.closeImageSaver()
+                del imageSaver
 
         clientSocket.close()
 
