@@ -1,11 +1,12 @@
 import socket
 import threading
 
-from file.ImageSave import ImageSaver
+from file.FileController import FileController
 import os
 
-from protocols.CheckData import checkData
+from protocol.CheckData import checkData
 
+IMAGE_DIR_PATH = "/image_classification/yolov5/data/images/"
 
 class HomeFitServer:
     def __init__(self, host, port):
@@ -64,9 +65,9 @@ class HomeFitServer:
                 print("File Size: " + str(fileSize))
 
                 cwd = os.getcwd()
-                dirPath = cwd + '/images/' + userName
+                dirPath = cwd + IMAGE_DIR_PATH + userName
 
-                imageSaver = ImageSaver(saveName, dirPath, fileSize)
+                imageSaver = FileController(saveName, dirPath, fileSize)
                 imageSaver.initImageSaver()
 
                 imageSaver.saveImage(data[11:])
@@ -85,10 +86,13 @@ class HomeFitServer:
                 imageSaver.closeImageSaver()
                 del imageSaver
 
+                # 분류 로직
+                # 양 추정 로직
+
         clientSocket.close()
 
 
 if __name__ == "__main__":
-    basicTestServer = HomeFitServer("192.168.0.21", 10001)
+    basicTestServer = HomeFitServer("192.168.35.243", 10001)
     print("Server Start")
     basicTestServer.serverLoop()
