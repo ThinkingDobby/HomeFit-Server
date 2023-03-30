@@ -59,7 +59,7 @@ class HomeFitServer:
                     print("Username Not Defined")
                     continue
 
-                saveName = "sample.png"
+                saveName = "sample.jpeg"
 
                 fileSize = int.from_bytes(data[6:10], byteorder='big', signed=True)
                 print("File Size: " + str(fileSize))
@@ -87,12 +87,13 @@ class HomeFitServer:
                 del imageSaver
 
                 # 분류 로직
+                
                 # 양 추정 로직
 
         clientSocket.close()
 
 
 if __name__ == "__main__":
-    basicTestServer = HomeFitServer("192.168.35.243", 10001)
+    basicTestServer = HomeFitServer("192.168.0.197", 10001)
     print("Server Start")
     basicTestServer.serverLoop()
