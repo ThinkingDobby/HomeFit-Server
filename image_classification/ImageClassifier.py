@@ -1,9 +1,19 @@
 import os
+import image_classification.yolov5.detect as detect
 
 
 class ImageClassifier:
-    def classifyImage(self):
-        os.system("python yolov5/detect.py --weights yolov5/runs/train/food_test_various/weights/best.pt --img 640 --conf 0.25 --source yolov5/data/images/rice.jpg")
+    def classifyImage(self, username):
+        save_dir = detect.run(
+            weights = "image_classification/yolov5/runs/train/food_test_various/weights/best.pt",
+            source = "image_classification/yolov5/data/images/" + username + "/sample.png",
+            save_crop= True,
+            name= username
+        )
+        #com = "python image_classification/yolov5/detect.py --weights image_classification/yolov5/runs/train/food_test_various/weights/best.pt --img 640 --conf 0.25 --source image_classification/yolov5/data/images/" + username + "/sample.png --save-crop --name " + username
+        #os.system(com)
+        return save_dir
+        
 
 
 if __name__ == "__main__":
