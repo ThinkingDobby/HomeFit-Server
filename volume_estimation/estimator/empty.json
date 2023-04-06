@@ -1,0 +1,22 @@
+{
+    "version": "5.1.1",
+    "flags": {},
+    "shapes": [
+      {
+        "label": "plate",
+        "points": null,
+        "group_id": null,
+        "shape_type": "polygon",
+        "flags": {}
+      },
+      {
+        "label": "food",
+        "points": null,
+        "group_id": null,
+        "shape_type": "polygon",
+        "flags": {}
+      }
+    ],
+    "imagePath": null,
+    "imageData": null
+  }

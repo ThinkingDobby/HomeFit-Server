@@ -5,6 +5,8 @@ from file.FileController import FileController
 import os
 
 from protocol.CheckData import checkData
+import image_classification.ImageClassifier as IC
+import volume_estimation.VolumeEstimator as VE
 
 IMAGE_DIR_PATH = "/image_classification/yolov5/data/images/"
 
@@ -74,7 +76,7 @@ class HomeFitServer:
 
                 while True:
                     data = clientSocket.recv(self.bufSize)
-                    print(data)
+                    #print(data)
                     if not data:
                         break
 
@@ -87,13 +89,15 @@ class HomeFitServer:
                 del imageSaver
 
                 # 분류 로직
-                
+                save_dir = IC.ImageClassifier.classifyImage(self, userName)
                 # 양 추정 로직
+                VE.VolumeEstimator.estimateVolume(self, save_dir)
 
-        clientSocket.close()
+        clientSocket.close()    
 
 
 if __name__ == "__main__":
     basicTestServer = HomeFitServer("192.168.0.197", 10001)
+
     print("Server Start")
     basicTestServer.serverLoop()
