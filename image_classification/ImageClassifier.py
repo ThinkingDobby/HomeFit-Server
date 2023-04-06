@@ -6,11 +6,11 @@ class ImageClassifier:
     def classifyImage(self, username):
         save_dir = detect.run(
             weights = "image_classification/yolov5/runs/train/food_test_various/weights/best.pt",
-            source = "image_classification/yolov5/data/images/" + username + "/sample.png",
+            source = "image_classification/yolov5/data/images/" + username + "/sample.jpeg",
             save_crop= True,
             name= username
         )
-        #com = "python image_classification/yolov5/detect.py --weights image_classification/yolov5/runs/train/food_test_various/weights/best.pt --img 640 --conf 0.25 --source image_classification/yolov5/data/images/" + username + "/sample.png --save-crop --name " + username
+        #com = "python image_classification/yolov5/detect.py --weights image_classification/yolov5/runs/train/food_test_various/weights/best.pt --img 640 --conf 0.25 --source image_classification/yolov5/data/images/" + username + "/sample.jpeg --save-crop --name " + username
         #os.system(com)
         return save_dir
         
