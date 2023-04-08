@@ -8,7 +8,7 @@ from protocol.CheckData import checkData
 import image_classification.ImageClassifier as IC
 import volume_estimation.VolumeEstimator as VE
 
-IMAGE_DIR_PATH = "/image_classification/yolov5/data/images/"
+IMAGE_DIR_PATH = "image_classification/yolov5/data/images/"
 
 class HomeFitServer:
     def __init__(self, host, port):
@@ -67,7 +67,7 @@ class HomeFitServer:
                 print("File Size: " + str(fileSize))
 
                 cwd = os.getcwd()
-                dirPath = cwd + IMAGE_DIR_PATH + userName
+                dirPath = cwd + '/' + IMAGE_DIR_PATH + userName
 
                 imageSaver = FileController(saveName, dirPath, fileSize)
                 imageSaver.initImageSaver()
@@ -92,6 +92,8 @@ class HomeFitServer:
                 save_dir = IC.ImageClassifier.classifyImage(self, userName)
                 # 양 추정 로직
                 VE.VolumeEstimator.estimateVolume(self, save_dir)
+
+                print("transmission started")
 
         clientSocket.close()    
 

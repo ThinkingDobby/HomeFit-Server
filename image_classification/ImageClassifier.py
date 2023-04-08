@@ -1,12 +1,13 @@
 import os
 import image_classification.yolov5.detect as detect
+import HomeFitServer as server
 
 
 class ImageClassifier:
     def classifyImage(self, username):
         save_dir = detect.run(
             weights = "image_classification/yolov5/runs/train/food_test_various/weights/best.pt",
-            source = "image_classification/yolov5/data/images/" + username + "/sample.jpeg",
+            source = server.IMAGE_DIR_PATH + username + "/sample.jpeg",
             save_crop= True,
             name= username
         )
