@@ -99,7 +99,7 @@ class HomeFitServer:
                 resultMessage = ResultMessage()
                 resultMessage.setEstimationResult("result", 1)
 
-                clientSocket.sendall(resultMessage.getResultMessage(1))
+                clientSocket.sendall(resultMessage.getResultMessage(32))
 
                 print("transmission started")
 

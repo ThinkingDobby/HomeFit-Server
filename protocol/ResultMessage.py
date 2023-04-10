@@ -10,7 +10,7 @@ class ResultMessage:
         end = b']'
 
         # 분류 및 양 추정 결과 생성
-        if messageNumber == 1:
+        if messageNumber == 32:
             if self.stateCode == 0:
                 msgSize = 5
             else:
