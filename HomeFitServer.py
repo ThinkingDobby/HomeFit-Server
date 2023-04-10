@@ -5,6 +5,8 @@ from file.FileController import FileController
 import os
 
 from protocol.CheckData import checkData
+from protocol.ResultMessage import ResultMessage
+
 import image_classification.ImageClassifier as IC
 import volume_estimation.VolumeEstimator as VE
 
@@ -76,7 +78,7 @@ class HomeFitServer:
 
                 while True:
                     data = clientSocket.recv(self.bufSize)
-                    #print(data)
+                    # print(data)
                     if not data:
                         break
 
@@ -92,6 +94,12 @@ class HomeFitServer:
                 save_dir = IC.ImageClassifier.classifyImage(self, userName)
                 # 양 추정 로직
                 VE.VolumeEstimator.estimateVolume(self, save_dir)
+
+                # 결과 메시지 생성
+                resultMessage = ResultMessage()
+                resultMessage.setEstimationResult("result", 1)
+
+                clientSocket.sendall(resultMessage.getResultMessage(1))
 
                 print("transmission started")
 
