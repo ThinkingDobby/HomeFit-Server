@@ -23,7 +23,6 @@ class ResultMessage:
             msg3 = np.array(msgSize).astype('uint8').tobytes()
             msg4 = np.array(self.value // 2**7).astype('uint8').tobytes()
             msg5 = np.array(self.value % 2**7).astype('uint8').tobytes()
-            print(msg4, msg5)
             
             if self.value == 0:
                 resultMessage = start + msg2 + msg3 + msg4 + end
