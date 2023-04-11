@@ -71,17 +71,25 @@ def main(dir):
     model.load_state_dict(torch.load('./pretrained_model/model_senet', map_location = "cpu") )
     model.eval()
     
+    food_list = []
+    quantity_list = []
     for path in crop_images_arr:
         img = cv2.imread(path)
         nyu2_loader = loaddata.readNyu2(path)
         vol = test(nyu2_loader, model, img.shape[1], img.shape[0], path)
         food_name = str(os.path.dirname(path)).split("\\")[-1]
         print(food_name)
+        food_list.append(food_name)
+        print(vol['food'])
+        quantity_list.append(vol['food'])
         key = list(vol.keys())[0]
         vol[food_name] = vol.pop(key)
         with open(str(dir)+"\\out.txt", 'a') as out_file:
             out_file.write(str(vol))
             out_file.write(",\n")
+    
+    return food_list, quantity_list
+    
     
 
 

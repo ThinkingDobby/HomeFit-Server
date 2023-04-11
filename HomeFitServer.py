@@ -91,13 +91,13 @@ class HomeFitServer:
                 del imageSaver
 
                 # 분류 로직
-                save_dir = IC.ImageClassifier.classifyImage(self, userName)
+                saveDir = IC.ImageClassifier.classifyImage(self, userName)
                 # 양 추정 로직
-                VE.VolumeEstimator.estimateVolume(self, save_dir)
+                foodList, quantityList = VE.VolumeEstimator.estimateVolume(self, saveDir)
 
                 # 결과 메시지 생성
                 resultMessage = ResultMessage()
-                resultMessage.setEstimationResult("result", 1)
+                resultMessage.setEstimationResult(foodList[0], int(quantityList[0]))
 
                 clientSocket.sendall(resultMessage.getResultMessage(32))
 
