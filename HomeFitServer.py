@@ -93,13 +93,15 @@ class HomeFitServer:
                 # 분류 로직
                 saveDir = IC.ImageClassifier.classifyImage(self, userName)
                 # 양 추정 로직
-                foodList, quantityList = VE.VolumeEstimator.estimateVolume(self, saveDir)
+                VE.VolumeEstimator.estimateVolume(self, saveDir)
 
                 # 결과 메시지 생성
-                resultMessage = ResultMessage()
-                resultMessage.setEstimationResult(foodList[0], int(quantityList[0]))
+                # resultMessage = ResultMessage()
+                # resultMessage.setEstimationResult(foodList[0], int(quantityList[0]))
 
-                clientSocket.sendall(resultMessage.getResultMessage(32))
+                # JSON파일 전송
+
+                # clientSocket.sendall(resultMessage.getResultMessage(32))
 
                 print("transmission started")
 
@@ -107,7 +109,7 @@ class HomeFitServer:
 
 
 if __name__ == "__main__":
-    basicTestServer = HomeFitServer("192.168.35.69", 10001)
+    basicTestServer = HomeFitServer("192.168.0.132", 10001)
 
     print("Server Start")
     basicTestServer.serverLoop()

@@ -24,6 +24,7 @@ ssl._create_default_https_context = ssl._create_unverified_context
 
 import matplotlib.image
 import matplotlib.pyplot as plt
+import json
 
 parser = argparse.ArgumentParser(description='KD-network')
 #parser.add_argument('--img', metavar='DIR',default="volume_estimation\estimator\input\result.jpg",
@@ -60,36 +61,52 @@ def main(dir):
     output_image = str(dir) + "/sample.png"
     crop_imagesDIR = str(dir) + "\crops"
     
+    model = define_model(is_resnet=False, is_densenet=False, is_senet=True)
+    model = torch.nn.DataParallel(model)
+    model.load_state_dict(torch.load('./pretrained_model/model_senet', map_location = "cpu") )
+    model.eval()
+    
+    
     #crop images to array
     crop_images_arr = []
     for root, dirs, files in os.walk(crop_imagesDIR):
         if not dirs:
             crop_images_arr.append(root + "\\" + files[0])
 
-    model = define_model(is_resnet=False, is_densenet=False, is_senet=True)
-    model = torch.nn.DataParallel(model)
-    model.load_state_dict(torch.load('./pretrained_model/model_senet', map_location = "cpu") )
-    model.eval()
+    with open("./volume_estimation/nutrition.json", "r") as file:
+        nutrition_json = json.load(file)    
     
-    food_list = []
-    quantity_list = []
+    convert_json = {}
+
+    #각 음식별로 부피,영양소 계산
     for path in crop_images_arr:
         img = cv2.imread(path)
         nyu2_loader = loaddata.readNyu2(path)
         vol = test(nyu2_loader, model, img.shape[1], img.shape[0], path)
         food_name = str(os.path.dirname(path)).split("\\")[-1]
         print(food_name)
-        food_list.append(food_name)
-        print(vol['food'])
-        quantity_list.append(vol['food'])
         key = list(vol.keys())[0]
-        vol[food_name] = vol.pop(key)
-        with open(str(dir)+"\\out.txt", 'a') as out_file:
-            out_file.write(str(vol))
-            out_file.write(",\n")
-    
-    return food_list, quantity_list
-    
+        
+        volume = vol.pop(key)
+        nutrition_info = nutrition_json[food_name]
+
+        weight = nutrition_info["conversion_value"] * volume
+        calorie = nutrition_info["calorie"] * weight
+        fat = nutrition_info["fat"] * weight
+        carbohydrate = nutrition_info["carbohydrate"] * weight
+        protein = nutrition_info["protein"] * weight
+        
+        convert_json[food_name] = {
+            "volume(cm^3)" : volume,
+            "weight(g)" : weight,
+            "calorie(kcal)" : calorie,
+            "fat(g)" : fat,
+            "carbohydrate(g)" : carbohydrate,
+            "protein(g)" : protein
+        }
+    #out.json파일에 결과 저장
+    with open(str(dir)+"\\out.json", 'a') as out_file:
+        json.dump(convert_json, out_file, ensure_ascii=False, indent="\t")
     
 
 

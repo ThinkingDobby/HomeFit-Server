@@ -1,0 +1,37 @@
+{
+    "Salad" : {
+        "conversion_value" : 0.573342,
+        "calorie" : 0.814,
+        "fat" : 0.03314,
+        "carbohydrate" : 0.11948,
+        "protein" : 0.01528
+    },
+    "Kimchi Fried Rice" : {
+        "conversion_value" : 0.648699,
+        "calorie" : 1.49,
+        "fat" : 0.0412,
+        "carbohydrate" : 0.2503,
+        "protein" : 0.0292
+    },
+    "Sundaegukbap" : {
+        "conversion_value" : 1.014491,
+        "calorie" : 1.2,
+        "fat" : 0.0332,
+        "carbohydrate" : 0.142,
+        "protein" : 0.077
+    },
+    "Jajangmyeon" : {
+        "conversion_value" : 0.930378,
+        "calorie" : 1.75,
+        "fat" : 0.0444,
+        "carbohydrate" : 0.2876,
+        "protein" : 0.0596
+    },
+    "Stir-Fried Pork" : {
+        "conversion_value" : 0.698722,
+        "calorie" : 1.91,
+        "fat" : 0.1103,
+        "carbohydrate" : 0.1037,
+        "protein" : 0.1321
+    }
+}
