@@ -102,4 +102,11 @@ def get_color(img):
     
     return sum(color)
 
-
+def count_pixel(img_path, plate_point):
+    img = cv2.imread(img_path)
+    image = np.zeros((img.shape[0], img.shape[1]), dtype=np.uint8)
+    
+    
+    cv2.fillPoly(image, [plate_point.tolist()], 255)
+    pixel_count = cv2.countNonZero(image)
+    return pixel_count

@@ -18,6 +18,7 @@ from volume_estimation.estimator.mask import get_mask
 from volume_estimation.estimator.makejson import prefix_point
 from volume_estimation.estimator.makejson import get_points
 from volume_estimation.estimator.makejson import create_json
+from volume_estimation.estimator.makejson import count_pixel
 
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
@@ -111,8 +112,10 @@ def test(nyu2_loader, model, width, height, path):
         
         # json create section
         food, plate_point = get_points(os.path.join(out_path, "out_grey.png"))
-        food, plate_point = prefix_point(food, plate_point, )
+        food, plate_point = prefix_point(food, plate_point)
         create_json(args.json, args.resultjson, plate_point, food)
+        pixel_count = count_pixel(os.path.join(out_path, "out_grey.png"), plate_point)
+        print("pixel_count : ", pixel_count)
         
         # volume estimation
         vol = get_volume(out_grey, args.resultjson)

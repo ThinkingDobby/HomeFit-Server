@@ -107,7 +107,7 @@ class HomeFitServer:
 
 
 if __name__ == "__main__":
-    basicTestServer = HomeFitServer("192.168.35.69", 10001)
+    basicTestServer = HomeFitServer("192.168.141.250", 10001)
 
     print("Server Start")
     basicTestServer.serverLoop()
