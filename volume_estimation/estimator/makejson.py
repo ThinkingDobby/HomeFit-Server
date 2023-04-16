@@ -7,8 +7,6 @@ from collections import Counter
 def get_points(imgpath):
     img = cv2.imread(imgpath)
     pix = img.shape[0:2]
-
-
     center = pix[1]//2, pix[0]//2
     size = max(pix)//2, min(pix)//2
     
@@ -104,9 +102,15 @@ def get_color(img):
 
 def count_pixel(img_path, plate_point):
     img = cv2.imread(img_path)
+    print(img.shape)
     image = np.zeros((img.shape[0], img.shape[1]), dtype=np.uint8)
-    
-    
-    cv2.fillPoly(image, [plate_point.tolist()], 255)
+    print(image.shape)
+    pix = image.shape[0:2]
+    center = pix[1]//2, pix[0]//2
+    size = max(pix)//2, min(pix)//2
+    cv2.ellipse(image, center, size, 0, 0, 360, (255, 255, 255))
+    plate_point = np.array(plate_point).reshape((-1, 1, 2))
+    cv2.fillPoly(image, [plate_point], 255)
     pixel_count = cv2.countNonZero(image)
+
     return pixel_count
