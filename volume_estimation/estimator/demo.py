@@ -19,6 +19,7 @@ from volume_estimation.estimator.makejson import prefix_point
 from volume_estimation.estimator.makejson import get_points
 from volume_estimation.estimator.makejson import create_json
 from volume_estimation.estimator.makejson import count_pixel
+from volume_estimation.estimator.makejson import get_plateSize
 
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
@@ -83,7 +84,7 @@ def main(dir, cameraInfo):
     for path in crop_images_arr:
         img = cv2.imread(path)
         nyu2_loader = loaddata.readNyu2(path)
-        vol = test(nyu2_loader, model, img.shape[1], img.shape[0], path)
+        vol = test(nyu2_loader, model, img.shape[1], img.shape[0], path, cameraInfo)
         food_name = str(os.path.dirname(path)).split("\\")[-1]
         print(food_name)
         key = list(vol.keys())[0]
@@ -111,7 +112,7 @@ def main(dir, cameraInfo):
     
 
 
-def test(nyu2_loader, model, width, height, path):
+def test(nyu2_loader, model, width, height, path, cameraInfo):
     for i, image in enumerate(nyu2_loader):     
         image = torch.autograd.Variable(image, volatile=True)
         out = model(image)
@@ -132,7 +133,8 @@ def test(nyu2_loader, model, width, height, path):
         food, plate_point = prefix_point(food, plate_point)
         create_json(args.json, args.resultjson, plate_point, food)
         pixel_count = count_pixel(os.path.join(out_path, "out_grey.png"), plate_point)
-        print("pixel_count : ", pixel_count)
+        distanceToObj = get_plateSize(cameraInfo, pixel_count)
+        print(distanceToObj)
         
         # volume estimation
         vol = get_volume(out_grey, args.resultjson)

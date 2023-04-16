@@ -3,6 +3,7 @@ import numpy as np
 import json
 from sklearn.cluster import KMeans
 from collections import Counter
+import math
 
 def get_points(imgpath):
     img = cv2.imread(imgpath)
@@ -114,3 +115,10 @@ def count_pixel(img_path, plate_point):
     pixel_count = cv2.countNonZero(image)
 
     return pixel_count
+
+def get_plateSize(cameraInfo, pixel_count):
+    focalLength, verticalAngle, horizontalAngle = cameraInfo.split()
+    fieldOfView = (verticalAngle + horizontalAngle) / 2
+    distanceToObj = (pixel_count / 2.0) / math.tan(math.toRadians(fieldOfView / 2.0)) * focalLength
+
+    return distanceToObj
