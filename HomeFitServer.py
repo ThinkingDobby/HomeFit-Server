@@ -92,8 +92,9 @@ class HomeFitServer:
 
                 # 분류 로직
                 saveDir = IC.ImageClassifier.classifyImage(self, userName)
+
                 # 양 추정 로직
-                foodList, quantityList = VE.VolumeEstimator.estimateVolume(self, saveDir)
+                foodList, quantityList = VE.VolumeEstimator.estimateVolume(self, saveDir, cameraInfo)
 
                 # 결과 메시지 생성
                 resultMessage = ResultMessage()
@@ -102,12 +103,17 @@ class HomeFitServer:
                 clientSocket.sendall(resultMessage.getResultMessage(32))
 
                 print("transmission started")
+            #카메라 정보 수신
+            elif check == 3:
+                msgSize = data[2]
+                cameraInfo = data[3:msgSize - 1].decode()
+                print("cameraInfo Received: " + cameraInfo)
 
         clientSocket.close()    
 
 
 if __name__ == "__main__":
-    basicTestServer = HomeFitServer("192.168.141.250", 10001)
+    basicTestServer = HomeFitServer("172.30.1.77", 10001)
 
     print("Server Start")
     basicTestServer.serverLoop()

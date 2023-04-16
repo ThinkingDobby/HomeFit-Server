@@ -57,7 +57,7 @@ def define_model(is_resnet, is_densenet, is_senet):
     return model
    
 
-def main(dir):
+def main(dir, cameraInfo):
     output_image = str(dir) + "/sample.png"
     crop_imagesDIR = str(dir) + "\crops"
     
