@@ -94,13 +94,15 @@ class HomeFitServer:
                 saveDir = IC.ImageClassifier.classifyImage(self, userName)
 
                 # 양 추정 로직
-                foodList, quantityList = VE.VolumeEstimator.estimateVolume(self, saveDir, cameraInfo)
+                VE.VolumeEstimator.estimateVolume(self, saveDir, cameraInfo)
 
                 # 결과 메시지 생성
-                resultMessage = ResultMessage()
-                resultMessage.setEstimationResult(foodList[0], int(quantityList[0]))
+                # resultMessage = ResultMessage()
+                # resultMessage.setEstimationResult(foodList[0], int(quantityList[0]))
 
-                clientSocket.sendall(resultMessage.getResultMessage(32))
+                # JSON파일 전송
+
+                # clientSocket.sendall(resultMessage.getResultMessage(32))
 
                 print("transmission started")
             #카메라 정보 수신
