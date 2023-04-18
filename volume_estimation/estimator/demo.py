@@ -19,7 +19,7 @@ from volume_estimation.estimator.makejson import prefix_point
 from volume_estimation.estimator.makejson import get_points
 from volume_estimation.estimator.makejson import create_json
 from volume_estimation.estimator.makejson import count_pixel
-from volume_estimation.estimator.makejson import get_plateSize
+from volume_estimation.estimator.makejson import get_distanceToObj
 
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
@@ -133,8 +133,8 @@ def test(nyu2_loader, model, width, height, path, cameraInfo):
         food, plate_point = prefix_point(food, plate_point)
         create_json(args.json, args.resultjson, plate_point, food)
         pixel_count = count_pixel(os.path.join(out_path, "out_grey.png"), plate_point)
-        distanceToObj = get_plateSize(cameraInfo, pixel_count)
-        print(distanceToObj)
+        distanceToObj = get_distanceToObj(cameraInfo, pixel_count)
+        print("distance : ", distanceToObj)
         
         # volume estimation
         vol = get_volume(out_grey, args.resultjson)

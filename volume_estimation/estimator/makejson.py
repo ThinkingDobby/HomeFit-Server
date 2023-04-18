@@ -103,9 +103,7 @@ def get_color(img):
 
 def count_pixel(img_path, plate_point):
     img = cv2.imread(img_path)
-    print(img.shape)
     image = np.zeros((img.shape[0], img.shape[1]), dtype=np.uint8)
-    print(image.shape)
     pix = image.shape[0:2]
     center = pix[1]//2, pix[0]//2
     size = max(pix)//2, min(pix)//2
@@ -116,9 +114,11 @@ def count_pixel(img_path, plate_point):
 
     return pixel_count
 
-def get_plateSize(cameraInfo, pixel_count):
-    focalLength, verticalAngle, horizontalAngle = cameraInfo.split()
+def get_distanceToObj(cameraInfo, pixel_count):
+    print("cameraInfo : ", cameraInfo)
+    focalLength, physicalSize_width, verticalAngle, horizontalAngle = cameraInfo.split()
+    focalLength, physicalSize_width, verticalAngle, horizontalAngle = float(focalLength), float(physicalSize_width), float(verticalAngle), float(horizontalAngle)
     fieldOfView = (verticalAngle + horizontalAngle) / 2
-    distanceToObj = (pixel_count / 2.0) / math.tan(math.toRadians(fieldOfView / 2.0)) * focalLength
+    distanceToObj = (pixel_count / 2.0) / math.tan(math.radians(fieldOfView/2.0)) * focalLength * 0.01
 
     return distanceToObj
