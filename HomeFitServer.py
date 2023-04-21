@@ -95,13 +95,25 @@ class HomeFitServer:
                 # 양 추정 로직
                 VE.VolumeEstimator.estimateVolume(self, saveDir)
 
+                filePath = str(saveDir) + '/' + "out.json"
+                fileSize = os.path.getsize(filePath)
+
                 # 결과 메시지 생성
-                # resultMessage = ResultMessage()
-                # resultMessage.setEstimationResult(foodList[0], int(quantityList[0]))
+                resultMessage = ResultMessage()
+                resultMessage.setValue(fileSize)
+                clientSocket.sendall(resultMessage.getResultMessage(33))
 
-                # JSON파일 전송
-
-                # clientSocket.sendall(resultMessage.getResultMessage(32))
+                # 아래 코드 참고해 파일 전송 구현
+                # print("파일 %s 전송 시작" %filename)
+                # with open(filename, 'rb') as f:
+                #     try:
+                #         data = f.read(1024) #1024바이트 읽는다
+                #         while data: #데이터가 없을 때까지
+                #             data_transferred += connectionSock.send(data) #1024바이트 보내고 크기 저장
+                #             data = f.read(1024) #1024바이트 읽음
+                #     except Exception as ex:
+                #         print(ex)
+                # print("전송완료 %s, 전송량 %d" %(filename, data_transferred))
 
                 print("transmission started")
 
@@ -109,7 +121,7 @@ class HomeFitServer:
 
 
 if __name__ == "__main__":
-    basicTestServer = HomeFitServer("192.168.0.132", 10001)
+    basicTestServer = HomeFitServer("192.168.35.69", 10001)
 
     print("Server Start")
     basicTestServer.serverLoop()
