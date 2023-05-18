@@ -4,10 +4,13 @@ import os
 import json
 import glob
 from PIL import Image, ImageDraw
+import math
 
 plate_diameter = 13.5 #cm
 plate_depth = 3.5 #cm
 plate_thickness = 0.4 #cm
+
+physical_spoon = 23 # cm
 
 def Max(x, y):
     if (x >= y):
@@ -100,5 +103,21 @@ def get_volume(img, json_path):
 
     return vol_dict
 
-##img = cv2.imread("test.jpg",0)
-##print(get_volume(img,"test.json"))
+def get_plateSize(crop_img, spoon_size):   
+    len_per_pix = physical_spoon / int(spoon_size)
+    plate_size = crop_img.shape[0] * len_per_pix, crop_img.shape[1] * len_per_pix
+    plate_diameter = (plate_size[0] + plate_size[1]) / 2
+
+    return plate_diameter, len_per_pix
+
+def get_distanceToObj(source_img, len_per_pix, verticalAngle, horizontalAngle):
+    fieldOfView = (float(verticalAngle) + float(horizontalAngle)) / 2
+    diagonal_len = math.sqrt(source_img.shape[0]**2 + source_img.shape[1]**2) / 2 * len_per_pix
+    distance = diagonal_len / math.tan(fieldOfView/2)
+    
+    return distance
+
+def get_height_per_pix(gray_img):
+    #graysclae img
+    # 0 : black(full) 255 : white(emtyp)
+    max(gray_img) - min(gray_img)
