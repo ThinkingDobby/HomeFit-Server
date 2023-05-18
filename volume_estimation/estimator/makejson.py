@@ -100,25 +100,3 @@ def get_color(img):
         color.append(perc[i] * sum(c) / len(c))
     
     return sum(color)
-
-def count_pixel(img_path, plate_point):
-    img = cv2.imread(img_path)
-    image = np.zeros((img.shape[0], img.shape[1]), dtype=np.uint8)
-    pix = image.shape[0:2]
-    center = pix[1]//2, pix[0]//2
-    size = max(pix)//2, min(pix)//2
-    cv2.ellipse(image, center, size, 0, 0, 360, (255, 255, 255))
-    plate_point = np.array(plate_point).reshape((-1, 1, 2))
-    cv2.fillPoly(image, [plate_point], 255)
-    pixel_count = cv2.countNonZero(image)
-
-    return pixel_count
-
-def get_distanceToObj(cameraInfo, pixel_count):
-    print("cameraInfo : ", cameraInfo)
-    focalLength, physicalSize_width, verticalAngle, horizontalAngle = cameraInfo.split()
-    focalLength, physicalSize_width, verticalAngle, horizontalAngle = float(focalLength), float(physicalSize_width), float(verticalAngle), float(horizontalAngle)
-    fieldOfView = (verticalAngle + horizontalAngle) / 2
-    distanceToObj = (pixel_count / 2.0) / math.tan(math.radians(fieldOfView/2.0)) * focalLength * 0.01
-
-    return distanceToObj
