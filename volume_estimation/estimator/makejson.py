@@ -83,7 +83,7 @@ def get_color(img):
         if all(result) > 0:
             data.append(result)
 
-    clt = KMeans(n_clusters=3) # most 3 value 
+    clt = KMeans(n_clusters=5, n_init=10) # most 3 value 
     clt.fit(data)
 
     n_pixels = len(clt.labels_)
@@ -94,7 +94,6 @@ def get_color(img):
 
     perc = dict(sorted(perc.items(), key=lambda item : item[1], reverse=True))
     print(perc)
-    print(clt.cluster_centers_)
     color = []
     for i, c in enumerate(clt.cluster_centers_):
         color.append(perc[i] * sum(c) / len(c))

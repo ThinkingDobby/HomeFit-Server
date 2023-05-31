@@ -6,9 +6,7 @@ import glob
 from PIL import Image, ImageDraw
 import math
 
-plate_diameter = 13.5 #cm
-plate_depth = 3.5 #cm
-plate_thickness = 0.4 #cm
+plate_thickness = 0.2275 #cm
 
 physical_spoon = 23 # cm
 
@@ -45,7 +43,7 @@ def get_bbox(points, h, w):
 
     return mask2box(mask)
 
-def get_scale(points, img, lowest):
+def get_scale(points, img, lowest, plate_diameter, plate_depth):
         
         bbox = get_bbox(points, img.shape[0], img.shape[1])      
 
@@ -79,7 +77,7 @@ def cal_volume(points, img, len_per_pix, depth_per_pix, lowest):
                 volume += Max(0, (lowest - img[j][i]) * depth_per_pix - plate_thickness) * len_per_pix * len_per_pix
     return volume
 
-def get_volume(img, json_path):
+def get_volume(img, json_path, plate_diameter, plate_depth):
     lowest = np.max(img)
     vol_dict = {}
     len_per_pix = 0.0
@@ -88,7 +86,7 @@ def get_volume(img, json_path):
         data = json.load(json_file)
         for shape in data['shapes']:
             if (shape['label'] == "plate"):
-                len_per_pix, depth_per_pix = get_scale(shape['points'], img, lowest)
+                len_per_pix, depth_per_pix = get_scale(shape['points'], img, lowest, plate_diameter, plate_depth)
                 break
         for shape in data['shapes']:
             label = shape['label']
@@ -112,12 +110,16 @@ def get_plateSize(crop_img, spoon_size):
 
 def get_distanceToObj(source_img, len_per_pix, verticalAngle, horizontalAngle):
     fieldOfView = (float(verticalAngle) + float(horizontalAngle)) / 2
+    print("fieldOfView : ", fieldOfView)
     diagonal_len = math.sqrt(source_img.shape[0]**2 + source_img.shape[1]**2) / 2 * len_per_pix
     distance = diagonal_len / math.tan(fieldOfView/2)
     
     return distance
 
-def get_height_per_pix(gray_img):
-    #graysclae img
-    # 0 : black(full) 255 : white(emtyp)
-    max(gray_img) - min(gray_img)
+def get_plate_depth(normalized_map, distance, fieldOfView):
+    distance_max = distance / math.cos(fieldOfView / 2)
+    distance_min = distance
+    
+    distance_map = normalized_map * (distance_max - distance_min) + distance_min
+    plate_depth = distance_map.max() - distance_map.min()
+    return plate_depth
