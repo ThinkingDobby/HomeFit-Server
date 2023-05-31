@@ -25,16 +25,39 @@ class ResultMessage:
             msg5 = np.array(self.value % 2**7).astype('uint8').tobytes()
             
             if self.value == 0:
-                resultMessage = start + msg2 + msg3 + msg4 + end
+                resultMessage = start + msg2 + msg3 + msg4 + msg5 + end
             else:
                 resultMessage = start + msg2 + msg3 + msg4 + msg5 + msg6 + end
             
-            #메시지가 전송 이후 모두 초기화
-            self.result = None
-            self.value = 0
+            # 메시지 전송 이후 초기화
+            self.init()
+            return resultMessage
+        
+        elif messageNumber == 33:   # 메시지 전송 후 파일 전송
+            msgSize = 6
+
+            # 메시지 번호
+            msg2 = np.array(messageNumber).astype('uint8').tobytes()
+            
+            # 메시지 크기
+            msg3 = np.array(msgSize).astype('uint8').tobytes()
+
+            # 전송할 파일 크기 (value)
+            msg4 = np.array(self.value // 2**7).astype('uint8').tobytes()
+            msg5 = np.array(self.value % 2**7).astype('uint8').tobytes()
+
+            resultMessage = start + msg2 + msg3 + msg4 + msg5 + end
+
+            self.init()
             return resultMessage
     
     
-    def setEstimationResult(self, result, value):
+    def setResult(self, result):
         self.result = result
+
+    def setValue(self, value):
         self.value = value
+
+    def init(self):
+        self.result = None
+        self.value = 0

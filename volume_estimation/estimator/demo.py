@@ -32,6 +32,7 @@ import json
 
 import math
 import time
+from threading import Thread
 
 parser = argparse.ArgumentParser(description='KD-network')
 #parser.add_argument('--img', metavar='DIR',default="volume_estimation\estimator\input\result.jpg",
@@ -62,9 +63,34 @@ def define_model(is_resnet, is_densenet, is_senet):
         model = net.model(Encoder, num_features=2048, block_channel = [256, 512, 1024, 2048])
 
     return model
-   
 
-def main(dir, cameraInfo):
+def calculate_nutrition(path, model, nutrition_json, convert_json):
+        img = cv2.imread(path)
+        nyu2_loader = loaddata.readNyu2(path)
+        vol = test(nyu2_loader, model, img.shape[1], img.shape[0], path)
+        food_name = str(os.path.dirname(path)).split("\\")[-1]
+        print(food_name)
+        key = list(vol.keys())[0]
+
+        volume = vol.pop(key)
+        nutrition_info = nutrition_json[food_name]
+
+        weight = nutrition_info["conversion_value"] * volume
+        calorie = nutrition_info["calorie"] * weight
+        fat = nutrition_info["fat"] * weight
+        carbohydrate = nutrition_info["carbohydrate"] * weight
+        protein = nutrition_info["protein"] * weight
+
+        convert_json[food_name] = {
+            "volume(cm^3)" : volume,
+            "weight(g)" : weight,
+            "calorie(kcal)" : calorie,
+            "fat(g)" : fat,
+            "carbohydrate(g)" : carbohydrate,
+            "protein(g)" : protein
+        }
+   
+def main(dir):
     output_image = str(dir) + "/sample.png"
     crop_imagesDIR = str(dir) + "\crops"
     
@@ -96,58 +122,16 @@ def main(dir, cameraInfo):
     convert_json = {}
     end = time.time()
 
-    print(f"Section 2 : \n{end - start:.5f} sec")
-    print("=====================================")
-    
-    #Section 3
-    start = time.time()
-    #각 음식별로 부피,영양소 계산
+    threads = []
     for path in crop_images_arr:
-        #Section 3-1
-        start_detail = time.time()
-        img = cv2.imread(path)
-        nyu2_loader = loaddata.readNyu2(path)
-        end_detail = time.time()
+        thread = Thread(target=calculate_nutrition, args=(path, model, nutrition_json, convert_json))
+        thread.start()
+        threads.append(thread)
 
-        print(f"    Section 3-1 : \n{end_detail - start_detail:.5f} sec")
-        print("----------------------------------")
+    # 모든 스레드가 완료까지 대기
+    for thread in threads:
+        thread.join()
 
-        #Section 3-2
-        start_detail = time.time()
-        vol = test(nyu2_loader, model, 256, 256, path, cameraInfo)
-        end_detail = time.time()
-
-        print(f"    Secton 3-2 : \n{end_detail - start_detail:.5f} sec")
-        print("----------------------------------")
-        
-        #Section 3-3
-        start_detail = time.time()
-        food_name = str(os.path.dirname(path)).split("\\")[-1]
-        print(food_name)
-        key = list(vol.keys())[0]
-        volume = vol.pop(key)
-        nutrition_info = nutrition_json[food_name]
-        weight = nutrition_info["conversion_value"] * volume
-        calorie = nutrition_info["calorie"] * weight
-        fat = nutrition_info["fat"] * weight
-        carbohydrate = nutrition_info["carbohydrate"] * weight
-        protein = nutrition_info["protein"] * weight
-        
-        convert_json[food_name] = {
-            "volume(cm^3)" : volume,
-            "weight(g)" : weight,
-            "calorie(kcal)" : calorie,
-            "fat(g)" : fat,
-            "carbohydrate(g)" : carbohydrate,
-            "protein(g)" : protein
-        }
-        end_detail = time.time()
-
-        print(f"    Section 3-3 : \n{end_detail - start_detail:.5f} sec")
-        print("----------------------------------")
-
-    #Section 3-4
-    start_detail = time.time()
     #out.json파일에 결과 저장
     with open(str(dir)+"\\out.json", 'a') as out_file:
         json.dump(convert_json, out_file, ensure_ascii=False, indent="\t")

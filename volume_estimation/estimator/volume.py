@@ -5,6 +5,7 @@ import json
 import glob
 from PIL import Image, ImageDraw
 import math
+import time
 
 plate_thickness = 0.2275 #cm
 
@@ -82,24 +83,35 @@ def get_volume(img, json_path, plate_diameter, plate_depth):
     vol_dict = {}
     len_per_pix = 0.0
     depth_per_pix = 0.0
-    with open(json_path, 'r') as json_file:
-        data = json.load(json_file)
-        for shape in data['shapes']:
-            if (shape['label'] == "plate"):
-                len_per_pix, depth_per_pix = get_scale(shape['points'], img, lowest, plate_diameter, plate_depth)
-                break
-        for shape in data['shapes']:
-            label = shape['label']
-            if (label == "plate"):
-                continue
-            points = shape['points']
-            volume = cal_volume(points, img, len_per_pix, depth_per_pix, lowest)
-            if (label in vol_dict):
-                vol_dict[label] += volume
-            else:
-                vol_dict[label] = volume
-
-    return vol_dict
+    
+    attempt = 0
+    while attempt < 2:  # result.json이 생성되지 않은 경우에 대한 대기 후 재시도 구현
+        try:
+            with open(json_path, 'r') as json_file:
+                data = json.load(json_file)
+                for shape in data['shapes']:
+                    if (shape['label'] == "plate"):
+                        len_per_pix, depth_per_pix = get_scale(shape['points'], img, lowest, plate_diameter, plate_depth)
+                        break
+                for shape in data['shapes']:
+                    label = shape['label']
+                    if (label == "plate"):
+                        continue
+                    points = shape['points']
+                    volume = cal_volume(points, img, len_per_pix, depth_per_pix, lowest)
+                    if (label in vol_dict):
+                        vol_dict[label] += volume
+                    else:
+                        vol_dict[label] = volume
+                return vol_dict
+        except json.decoder.JSONDecodeError:
+            if attempt < 1:  # 파일을 읽지 못했을 때 3초 동안 대기
+                time.sleep(3)
+                attempt += 1
+            else:  # 두 번째 시도에서도 실패하면 오류를 발생시키거나 기본값 반환
+                return vol_dict  # 빈 딕셔너리 반환
+        except Exception as e:  # 기타 예외 처리
+            raise e
 
 def get_plateSize(crop_img, spoon_size):   
     len_per_pix = physical_spoon / int(spoon_size)

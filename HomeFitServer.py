@@ -96,13 +96,20 @@ class HomeFitServer:
                 # 양 추정 로직
                 VE.VolumeEstimator.estimateVolume(self, saveDir, cameraInfo)
 
+                filePath = str(saveDir) + '/' + "out.json"
+                fileSize = os.path.getsize(filePath)
+
                 # 결과 메시지 생성
-                # resultMessage = ResultMessage()
-                # resultMessage.setEstimationResult(foodList[0], int(quantityList[0]))
+                resultMessage = ResultMessage()
+                resultMessage.setValue(fileSize)
+                clientSocket.sendall(resultMessage.getResultMessage(33))
 
-                # JSON파일 전송
-
-                # clientSocket.sendall(resultMessage.getResultMessage(32))
+                dataTransferred = 0
+                with open(filePath, 'rb') as f:
+                    data = f.read(1024)
+                    while data:
+                        dataTransferred += clientSocket.send(data)
+                        data = f.read(1024)
 
                 print("transmission started")
             #카메라 정보 수신
