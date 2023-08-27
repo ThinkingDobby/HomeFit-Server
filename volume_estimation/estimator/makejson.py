@@ -25,7 +25,6 @@ def get_points(imgpath):
     
     
     color = get_color(cv2.cvtColor(imgray, cv2.COLOR_BGR2RGB))
-    print("food color : " ,color)
 
     # 스레시홀드로 바이너리 이미지로 만들어서 검은배경에 흰색전경으로 반전 ---②
     ret, imthres = cv2.threshold(imgray, color, 255, cv2.THRESH_BINARY_INV)
@@ -75,15 +74,28 @@ def create_json(empty_json, result_json, plate, food):
     with open(result_json, 'w') as json_file:
         json_file.write(json.dumps(data))
 
+def write_json(path, diameter, len_per_pix, distanceToObj, plate_depth):
+    data = {
+        "plate_diameter" : diameter,
+        "len_per_pix" : len_per_pix,
+        "ditanceToObj" : distanceToObj,
+        "plate_depth" : plate_depth
+    }
+    data_convert = {k : float(v) for k, v in data.items()}
+    with open(path+"_info.json", "w") as json_file:
+        json_file.write(json.dumps(data_convert))
+
+        
+
 def get_color(img):
     data = []
     img = img.reshape(-1, 3)
     for dt in img:
-        result = [i if i < 128 else 0 for i in dt ]
+        result = [i if i >= 0 else 0 for i in dt ]
         if all(result) > 0:
             data.append(result)
 
-    clt = KMeans(n_clusters=5, n_init=10) # most 3 value 
+    clt = KMeans(n_clusters=5, n_init=10) # most 5 value 
     clt.fit(data)
 
     n_pixels = len(clt.labels_)
@@ -94,8 +106,10 @@ def get_color(img):
 
     perc = dict(sorted(perc.items(), key=lambda item : item[1], reverse=True))
     print(perc)
+    print(clt.cluster_centers_)
     color = []
     for i, c in enumerate(clt.cluster_centers_):
-        color.append(perc[i] * sum(c) / len(c))
-    
-    return sum(color)
+        color.append(c[0])
+    print("mean color : ", np.mean(color))
+
+    return np.mean(color)

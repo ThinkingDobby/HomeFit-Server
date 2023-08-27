@@ -94,7 +94,7 @@ class HomeFitServer:
                 saveDir = IC.ImageClassifier.classifyImage(self, userName)
 
                 # 양 추정 로직
-                VE.VolumeEstimator.estimateVolume(self, saveDir, cameraInfo)
+                VE.VolumeEstimator.estimateVolume(self, saveDir, cameraInfo, userName)
 
                 filePath = str(saveDir) + '/' + "out.json"
                 fileSize = os.path.getsize(filePath)
@@ -118,7 +118,7 @@ class HomeFitServer:
                 cameraInfo = data[3:msgSize - 1].decode()
                 print("cameraInfo Received: " + cameraInfo)
 
-        clientSocket.close()    
+        clientSocket.close()        
 
 
 if __name__ == "__main__":

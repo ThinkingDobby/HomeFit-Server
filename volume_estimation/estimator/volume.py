@@ -7,8 +7,7 @@ from PIL import Image, ImageDraw
 import math
 import time
 
-plate_thickness = 0.2275 #cm
-
+#plate_thickness = 0.2275 #cm
 physical_spoon = 23 # cm
 
 def Max(x, y):
@@ -72,6 +71,8 @@ def cal_volume(points, img, len_per_pix, depth_per_pix, lowest):
     points = np.array(points)
     shape = points.shape
     points = points.reshape(shape[0], 1, shape[1])
+    plate_thickness = (math.sqrt(img.shape[0]**2 + img.shape[0]**2) - (img.shape[0] + img.shape[1])/2) *len_per_pix
+    print("그릇 두께 : ", plate_thickness)
     for i in range(bbox[0], bbox[2]+1):
         for j in range(bbox[1], bbox[3]+1):
             if (cv2.pointPolygonTest(points, (i,j), False) >= 0):
@@ -122,16 +123,14 @@ def get_plateSize(crop_img, spoon_size):
 
 def get_distanceToObj(source_img, len_per_pix, verticalAngle, horizontalAngle):
     fieldOfView = (float(verticalAngle) + float(horizontalAngle)) / 2
-    print("fieldOfView : ", fieldOfView)
     diagonal_len = math.sqrt(source_img.shape[0]**2 + source_img.shape[1]**2) / 2 * len_per_pix
     distance = diagonal_len / math.tan(fieldOfView/2)
     
     return distance
 
-def get_plate_depth(normalized_map, distance, fieldOfView):
-    distance_max = distance / math.cos(fieldOfView / 2)
-    distance_min = distance
-    
-    distance_map = normalized_map * (distance_max - distance_min) + distance_min
-    plate_depth = distance_map.max() - distance_map.min()
+def get_plate_depth(crop_img, max_depth, min_depth, len_per_pix, distance):
+    distance_max = math.sqrt(distance**2 +  len_per_pix * math.sqrt(crop_img.shape[0]**2 + crop_img.shape[1]**2))
+    distance_min = distance_max * min_depth / max_depth
+
+    plate_depth = distance - distance_min
     return plate_depth
