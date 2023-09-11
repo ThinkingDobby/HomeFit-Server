@@ -32,7 +32,6 @@ import matplotlib.pyplot as plt
 import json
 
 import math
-import time
 from threading import Thread
 
 parser = argparse.ArgumentParser(description='KD-network')
@@ -53,7 +52,7 @@ def define_model(is_resnet, is_densenet, is_senet):
         original_model = resnet.resnet50(pretrained = True)
         Encoder = modules.E_resnet(original_model) 
         model = net.model(Encoder, num_features=2048, block_channel = [256, 512, 1024, 2048])
-    if is_densenet:
+    if is_densenet: 
         print(2)
         original_model = densenet.densenet161(pretrained=True)
         Encoder = modules.E_densenet(original_model)
@@ -127,6 +126,8 @@ def main(dir, camerainfo, userName):
     with open(str(dir)+"\\out.json", 'a') as out_file:
         json.dump(convert_json, out_file, ensure_ascii=False, indent="\t")
 
+    
+
 def test(nyu2_loader, model, width, height, path, cameraInfo, userName):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # 장치 설정
     model = model.to(device)  # 모델을 해당 장치로 이동
@@ -134,12 +135,13 @@ def test(nyu2_loader, model, width, height, path, cameraInfo, userName):
     print("cameraInfo : ", cameraInfo)
     with torch.no_grad():    
         for i, image in enumerate(nyu2_loader):
+            np.set_printoptions(threshold=np.inf, linewidth=np.inf)
             image = image.to(device)
             out = model(image)
             out = out.view(out.size(2),out.size(3)).data.cpu().numpy()
             max_pix = out.max() 
             min_pix = out.min()
-            
+
             # 정규화된 깊이 맵을 [0, 1] 범위로 변환후 255로 스케일(그레이스케일)
             normalized_depth_map = (out-min_pix)/(max_pix-min_pix)
             out = normalized_depth_map * 255 # greyscale_map
@@ -165,7 +167,7 @@ def test(nyu2_loader, model, width, height, path, cameraInfo, userName):
             print("distanceToObj : ", distanceToObj)
             
             # 그릇 깊이 추정
-            plate_depth = get_plate_depth(out_grey, max_pix, min_pix, len_per_pix, distanceToObj)
+            plate_depth = get_plate_depth(out_grey, max_pix, min_pix, len_per_pix, distanceToObj, out / 255 * distanceToObj)
             print("그릇 깊이 : ", plate_depth)
             
             # write food info

@@ -7,7 +7,7 @@ from PIL import Image, ImageDraw
 import math
 import time
 
-#plate_thickness = 0.2275 #cm
+plate_thickness = 1 #cm
 physical_spoon = 23 # cm
 
 def Max(x, y):
@@ -71,12 +71,10 @@ def cal_volume(points, img, len_per_pix, depth_per_pix, lowest):
     points = np.array(points)
     shape = points.shape
     points = points.reshape(shape[0], 1, shape[1])
-    plate_thickness = (math.sqrt(img.shape[0]**2 + img.shape[0]**2) - (img.shape[0] + img.shape[1])/2) *len_per_pix
-    print("그릇 두께 : ", plate_thickness)
     for i in range(bbox[0], bbox[2]+1):
         for j in range(bbox[1], bbox[3]+1):
             if (cv2.pointPolygonTest(points, (i,j), False) >= 0):
-                volume += Max(0, (lowest - img[j][i]) * depth_per_pix - plate_thickness) * len_per_pix * len_per_pix
+                volume += Max(0, (lowest - img[j][i]) * depth_per_pix - plate_thickness) * len_per_pix * len_per_pix / 4
     return volume
 
 def get_volume(img, json_path, plate_diameter, plate_depth):
@@ -99,6 +97,7 @@ def get_volume(img, json_path, plate_diameter, plate_depth):
                     if (label == "plate"):
                         continue
                     points = shape['points']
+                    
                     volume = cal_volume(points, img, len_per_pix, depth_per_pix, lowest)
                     if (label in vol_dict):
                         vol_dict[label] += volume
@@ -119,7 +118,7 @@ def get_plateSize(crop_img, spoon_size):
     plate_size = crop_img.shape[0] * len_per_pix, crop_img.shape[1] * len_per_pix
     plate_diameter = (plate_size[0] + plate_size[1]) / 2
 
-    return plate_diameter, len_per_pix
+    return plate_diameter * 4, len_per_pix
 
 def get_distanceToObj(source_img, len_per_pix, verticalAngle, horizontalAngle):
     fieldOfView = (float(verticalAngle) + float(horizontalAngle)) / 2
@@ -128,7 +127,9 @@ def get_distanceToObj(source_img, len_per_pix, verticalAngle, horizontalAngle):
     
     return distance
 
-def get_plate_depth(crop_img, max_depth, min_depth, len_per_pix, distance):
+def get_plate_depth(crop_img, max_depth, min_depth, len_per_pix, distance, normalized_depth_map):
+    distance_map = normalized_depth_map
+    
     distance_max = math.sqrt(distance**2 +  len_per_pix * math.sqrt(crop_img.shape[0]**2 + crop_img.shape[1]**2))
     distance_min = distance_max * min_depth / max_depth
 

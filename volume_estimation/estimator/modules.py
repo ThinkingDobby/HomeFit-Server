@@ -199,19 +199,20 @@ class R(nn.Module):
         self.conv1 = nn.Conv2d(num_features, num_features,
                                kernel_size=5, stride=1, padding=2, bias=False)
         self.bn1 = nn.BatchNorm2d(num_features)
-
+        
         self.conv2 = nn.Conv2d(
             num_features, 1, kernel_size=5, stride=1, padding=2, bias=True)
 
     def forward(self, x):
+        
         x0 = self.conv0(x)
         x0 = self.bn0(x0)
         x0 = F.relu(x0)
-
+        
         x1 = self.conv1(x0)
         x1 = self.bn1(x1)
         x1 = F.relu(x1)
-
+        
         x2 = self.conv2(x1)
-
+        
         return x2
