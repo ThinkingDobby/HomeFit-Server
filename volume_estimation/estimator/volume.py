@@ -4,11 +4,11 @@ import os
 import json
 import glob
 from PIL import Image, ImageDraw
+import math
 import time
 
-plate_diameter = 13.5 #cm
-plate_depth = 3.5 #cm
-plate_thickness = 0.4 #cm
+plate_thickness = 1 #cm
+physical_spoon = 23 # cm
 
 def Max(x, y):
     if (x >= y):
@@ -43,7 +43,7 @@ def get_bbox(points, h, w):
 
     return mask2box(mask)
 
-def get_scale(points, img, lowest):
+def get_scale(points, img, lowest, plate_diameter, plate_depth):
         
         bbox = get_bbox(points, img.shape[0], img.shape[1])      
 
@@ -74,10 +74,10 @@ def cal_volume(points, img, len_per_pix, depth_per_pix, lowest):
     for i in range(bbox[0], bbox[2]+1):
         for j in range(bbox[1], bbox[3]+1):
             if (cv2.pointPolygonTest(points, (i,j), False) >= 0):
-                volume += Max(0, (lowest - img[j][i]) * depth_per_pix - plate_thickness) * len_per_pix * len_per_pix
+                volume += Max(0, (lowest - img[j][i]) * depth_per_pix - plate_thickness) * len_per_pix * len_per_pix / 4
     return volume
 
-def get_volume(img, json_path):
+def get_volume(img, json_path, plate_diameter, plate_depth):
     lowest = np.max(img)
     vol_dict = {}
     len_per_pix = 0.0
@@ -90,13 +90,14 @@ def get_volume(img, json_path):
                 data = json.load(json_file)
                 for shape in data['shapes']:
                     if (shape['label'] == "plate"):
-                        len_per_pix, depth_per_pix = get_scale(shape['points'], img, lowest)
+                        len_per_pix, depth_per_pix = get_scale(shape['points'], img, lowest, plate_diameter, plate_depth)
                         break
                 for shape in data['shapes']:
                     label = shape['label']
                     if (label == "plate"):
                         continue
                     points = shape['points']
+                    
                     volume = cal_volume(points, img, len_per_pix, depth_per_pix, lowest)
                     if (label in vol_dict):
                         vol_dict[label] += volume
@@ -112,5 +113,25 @@ def get_volume(img, json_path):
         except Exception as e:  # 기타 예외 처리
             raise e
 
-##img = cv2.imread("test.jpg",0)
-##print(get_volume(img,"test.json"))
+def get_plateSize(crop_img, spoon_size):   
+    len_per_pix = physical_spoon / int(spoon_size)
+    plate_size = crop_img.shape[0] * len_per_pix, crop_img.shape[1] * len_per_pix
+    plate_diameter = (plate_size[0] + plate_size[1]) / 2
+
+    return plate_diameter * 4, len_per_pix
+
+def get_distanceToObj(source_img, len_per_pix, verticalAngle, horizontalAngle):
+    fieldOfView = (float(verticalAngle) + float(horizontalAngle)) / 2
+    diagonal_len = math.sqrt(source_img.shape[0]**2 + source_img.shape[1]**2) / 2 * len_per_pix
+    distance = diagonal_len / math.tan(fieldOfView/2)
+    
+    return distance
+
+def get_plate_depth(crop_img, max_depth, min_depth, len_per_pix, distance, normalized_depth_map):
+    distance_map = normalized_depth_map
+    
+    distance_max = math.sqrt(distance**2 +  len_per_pix * math.sqrt(crop_img.shape[0]**2 + crop_img.shape[1]**2))
+    distance_min = distance_max * min_depth / max_depth
+
+    plate_depth = distance - distance_min
+    return plate_depth

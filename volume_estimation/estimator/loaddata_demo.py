@@ -39,7 +39,7 @@ def readNyu2(filename):
                                  __imagenet_stats['std'])
                        ]))
 
-    image = DataLoader(image_trans, batch_size=1, shuffle=False, num_workers=0, pin_memory=False)
+    image = DataLoader(image_trans, batch_size=16, shuffle=True, num_workers=0, pin_memory=False)
 
 
     return image

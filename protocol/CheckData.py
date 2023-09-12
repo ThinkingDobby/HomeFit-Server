@@ -18,6 +18,8 @@ def checkData(data):
         return 1
     elif data[1] == 2:
         return 2
+    elif data[1] == 3:
+        return 3
     else:
         print("Message Number Not Defined")
         return 0

@@ -29,5 +29,5 @@ class model(nn.Module):
         x_decoder = self.D(x_block1, x_block2, x_block3, x_block4)
         x_mff = self.MFF(x_block1, x_block2, x_block3, x_block4,[x_decoder.size(2),x_decoder.size(3)])
         out = self.R(torch.cat((x_decoder, x_mff), 1))
-
+        
         return out

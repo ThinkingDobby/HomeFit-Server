@@ -1,2 +1,4 @@
-*.pt
 pretrained_model/
+image_classification/yolov5/runs/
+volume_estimation/estimator/input/result.json
+image_classification/yolov5/data/images/User/
